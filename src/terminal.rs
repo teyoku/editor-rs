@@ -1,6 +1,11 @@
 use std::io::{self, stdout};
 
-use crossterm::{cursor::MoveTo, execute, style::Print, terminal::{Clear, ClearType, disable_raw_mode, enable_raw_mode}};
+use crossterm::{
+    cursor::MoveTo,
+    execute,
+    style::Print,
+    terminal::{Clear, ClearType, disable_raw_mode, enable_raw_mode},
+};
 
 pub struct Terminal {}
 

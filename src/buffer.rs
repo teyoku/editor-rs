@@ -5,7 +5,7 @@ use crate::cursor::Position;
 pub struct Buffer {
     pub lines: Vec<String>,
     pub filename: Option<String>,
-    pub modified: bool
+    pub modified: bool,
 }
 
 impl Buffer {
@@ -13,7 +13,7 @@ impl Buffer {
         Self {
             lines: vec![String::new()],
             filename: None,
-            modified: false
+            modified: false,
         }
     }
 
@@ -30,7 +30,7 @@ impl Buffer {
         Self {
             lines,
             filename: Some(path.to_string()),
-            modified: false
+            modified: false,
         }
     }
 
