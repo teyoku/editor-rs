@@ -71,10 +71,32 @@ impl Editor {
                     if let Some(query) = self.prompt("Search: ") {
                         match self.find_text(&query) {
                             Some(pos) => self.cursor = pos,
-                            None => self.set_message("Not found"),
+                            None => self.set_message("Not found."),
                         }
                     } else {
                         self.set_message("Search cancelled.");
+                        return Ok(());
+                    }
+                }
+                KeyCode::Char('g') if event.modifiers == KeyModifiers::CONTROL => {
+                    if let Some(input) = self.prompt("Go to line: ") {
+                        if let Ok(line_num) = input.parse::<usize>() {
+                            let target_line =
+                                line_num.saturating_sub(1).min(self.buffer.line_count() - 1);
+
+                            self.cursor.y = target_line;
+
+                            let new_line_len = self.buffer.line_len(self.cursor.y);
+                            if self.cursor.x > new_line_len {
+                                self.cursor.x = new_line_len;
+                            }
+
+                            self.set_message(&format!("Jumping to line: {}", line_num));
+                        } else {
+                            self.set_message("Invalid line format.");
+                            return Ok(());
+                        }
+                    } else {
                         return Ok(());
                     }
                 }
