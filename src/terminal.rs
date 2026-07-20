@@ -40,4 +40,9 @@ impl Terminal {
     pub fn size() -> io::Result<(u16, u16)> {
         size()
     }
+
+    pub fn clear_current_line() -> io::Result<()> {
+        execute!(stdout(), Clear(ClearType::CurrentLine))?;
+        Ok(())
+    }
 }
