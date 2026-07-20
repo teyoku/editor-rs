@@ -98,6 +98,13 @@ impl Buffer {
         }
     }
 
+    pub fn get_line_indent(&self, y: usize) -> String {
+        self.lines[y]
+            .chars()
+            .take_while(|c| c.is_whitespace())
+            .collect::<String>()
+    }
+
     pub fn line_count(&self) -> usize {
         self.lines.len()
     }
