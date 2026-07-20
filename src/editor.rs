@@ -164,6 +164,9 @@ impl Editor {
 
     fn draw_status_bar(&self) -> io::Result<()> {
         let (width, height) = Terminal::size()?;
+        let width = width as usize;
+        let height = height as usize;
+
         let mut left_part = match &self.buffer.filename {
             Some(name) => format!("[{name}]"),
             None => "[No Name]".to_string(),
@@ -184,13 +187,13 @@ impl Editor {
 
         status_line.push_str(&left_part);
 
-        while status_line.chars().count() < width as usize - right_part.chars().count() as usize {
+        while status_line.chars().count() < width - right_part.chars().count() {
             status_line.push(' ');
         }
 
         status_line.push_str(&right_part);
 
-        Terminal::move_cursor_to(0, height as usize - 1)?;
+        Terminal::move_cursor_to(0, height - 1)?;
         Terminal::print(&status_line)?;
 
         Ok(())
