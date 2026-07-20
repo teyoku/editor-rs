@@ -4,7 +4,7 @@ use crossterm::{
     cursor::MoveTo,
     execute,
     style::Print,
-    terminal::{Clear, ClearType, disable_raw_mode, enable_raw_mode},
+    terminal::{Clear, ClearType, disable_raw_mode, enable_raw_mode, size},
 };
 
 pub struct Terminal {}
@@ -35,5 +35,9 @@ impl Terminal {
     pub fn print(line: &String) -> io::Result<()> {
         execute!(stdout(), Print(line))?;
         Ok(())
+    }
+
+    pub fn size() -> io::Result<(u16, u16)> {
+        size()
     }
 }
