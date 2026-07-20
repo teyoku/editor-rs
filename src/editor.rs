@@ -221,6 +221,8 @@ impl Editor {
         status_line.push_str(&right_part);
 
         Terminal::move_cursor_to(0, height - 1)?;
+
+        Terminal::clear_current_line()?;
         Terminal::print(&status_line)?;
 
         Ok(())
@@ -231,15 +233,14 @@ impl Editor {
     }
 
     fn prompt(&mut self, promt_text: &str) -> Option<String> {
-        let (width, height) = Terminal::size().unwrap();
-        let width = width as usize;
+        let (_, height) = Terminal::size().unwrap();
         let height = height as usize;
 
         let mut input = String::new();
         loop {
-            Terminal::move_cursor_to(0, height - 1);
-            Terminal::print(&" ".repeat(width));
-            Terminal::print(&format!("{}{}", promt_text, input));
+            Terminal::move_cursor_to(0, height - 1).unwrap();
+            Terminal::clear_current_line().unwrap();
+            Terminal::print(&format!("{}{}", promt_text, input)).unwrap();
 
             if let Ok(Key(event)) = read() {
                 match event.code {
