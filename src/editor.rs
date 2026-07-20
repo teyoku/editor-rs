@@ -1,4 +1,4 @@
-use std::io::{self, Write, stdout};
+use std::io;
 
 use crossterm::event::{
     Event::{self, Key},
