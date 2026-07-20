@@ -105,6 +105,53 @@ impl Buffer {
             .collect::<String>()
     }
 
+    pub fn next_word_boundary(&self, x: usize, y: usize) -> usize {
+        let line = &self.lines[y];
+
+        let chars: Vec<char> = line.chars().collect();
+        let len = chars.len();
+
+        if x >= len {
+            return x;
+        }
+
+        let mut i = x;
+
+        // Пропускаем "не буквы" и "не цифры"
+        while i < len && !chars[i].is_alphanumeric() {
+            i += 1;
+        }
+
+        // Пропускаем само слово (буквы и цифры)
+        while i < len && chars[i].is_alphanumeric() {
+            i += 1;
+        }
+
+        i
+    }
+
+    pub fn prev_word_boundary(&self, x: usize, y: usize) -> usize {
+        let line = &self.lines[y];
+
+        let chars: Vec<char> = line.chars().collect();
+
+        if x == 0 {
+            return x;
+        }
+
+        let mut i = x;
+
+        while i > 0 && !chars[i - 1].is_alphanumeric() {
+            i -= 1;
+        }
+
+        while i > 0 && chars[i - 1].is_alphanumeric() {
+            i -= 1;
+        }
+
+        i
+    }
+
     pub fn line_count(&self) -> usize {
         self.lines.len()
     }
