@@ -138,7 +138,7 @@ impl Editor {
         let height = height as usize;
 
         let start_row = self.viewport.row_offset;
-        let end_row = (start_row + height).clamp(0, self.buffer.line_count());
+        let end_row = (start_row + height - 1).clamp(0, self.buffer.line_count());
 
         let visible_lines = &self.buffer.lines[start_row..end_row];
         for (screen_y, line) in visible_lines.iter().enumerate() {
@@ -152,10 +152,46 @@ impl Editor {
             Terminal::print(&visible_text)?;
         }
 
+        self.draw_status_bar()?;
+
         let screen_x = self.cursor.x - self.viewport.col_offset;
         let screen_y = self.cursor.y - self.viewport.row_offset;
 
         Terminal::move_cursor_to(screen_x, screen_y)?;
+
+        Ok(())
+    }
+
+    fn draw_status_bar(&self) -> io::Result<()> {
+        let (width, height) = Terminal::size()?;
+        let mut left_part = match &self.buffer.filename {
+            Some(name) => format!("[{name}]"),
+            None => "[No Name]".to_string(),
+        };
+
+        if self.buffer.modified {
+            left_part.push_str(" [modified]");
+        }
+
+        let right_part = format!(
+            "Ln {}/{} Col {}",
+            self.cursor.y + 1,
+            self.buffer.line_count(),
+            self.cursor.x + 1,
+        );
+
+        let mut status_line = String::new();
+
+        status_line.push_str(&left_part);
+
+        while status_line.chars().count() < width as usize - right_part.chars().count() as usize {
+            status_line.push(' ');
+        }
+
+        status_line.push_str(&right_part);
+
+        Terminal::move_cursor_to(0, height as usize - 1)?;
+        Terminal::print(&status_line)?;
 
         Ok(())
     }
