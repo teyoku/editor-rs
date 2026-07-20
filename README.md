@@ -7,6 +7,10 @@
     <img src="img/image.png" alt="App Screenshot" width="600">
 </p>
 
+<p align="center">
+    <img src="img/output.gif" alt="App Gif" width="600">
+</p>
+
 ## Возможности
 
 - Открытие файла (или создание нового)
