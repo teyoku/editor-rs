@@ -16,6 +16,7 @@ pub struct Editor {
     cursor: Position,
     viewport: Viewport,
     should_quit: bool,
+    status_message: String,
 }
 
 impl Editor {
@@ -25,6 +26,7 @@ impl Editor {
             buffer,
             cursor: Position::new(),
             viewport: Viewport::new(),
+            status_message: String::new(),
         }
     }
 
@@ -51,8 +53,18 @@ impl Editor {
                     self.should_quit = true;
                 }
                 KeyCode::Char('s') if event.modifiers == KeyModifiers::CONTROL => {
+                    if self.buffer.filename.is_none() {
+                        if let Some(path) = self.prompt("Save as: ") {
+                            self.buffer.filename = Some(path);
+                        } else {
+                            self.set_message("Save aborted.");
+                            return Ok(());
+                        }
+                    }
+
                     self.buffer.save()?;
                     self.buffer.modified = false;
+                    self.set_message("File saved successfully.");
                 }
                 KeyCode::Char(ch) => {
                     self.buffer.insert_char(&self.cursor, ch);
@@ -167,10 +179,14 @@ impl Editor {
         let width = width as usize;
         let height = height as usize;
 
-        let mut left_part = match &self.buffer.filename {
-            Some(name) => format!("[{name}]"),
-            None => "[No Name]".to_string(),
-        };
+        let mut left_part = self.status_message.clone();
+
+        if left_part.is_empty() {
+            left_part = match &self.buffer.filename {
+                Some(name) => format!("[{name}]"),
+                None => "[No Name]".to_string(),
+            };
+        }
 
         if self.buffer.modified {
             left_part.push_str(" [modified]");
@@ -197,5 +213,34 @@ impl Editor {
         Terminal::print(&status_line)?;
 
         Ok(())
+    }
+
+    fn set_message(&mut self, msg: &str) {
+        self.status_message = msg.to_string();
+    }
+
+    fn prompt(&mut self, promt_text: &str) -> Option<String> {
+        let (width, height) = Terminal::size().unwrap();
+        let width = width as usize;
+        let height = height as usize;
+
+        let mut input = String::new();
+        loop {
+            Terminal::move_cursor_to(0, height - 1);
+            Terminal::print(&" ".repeat(width));
+            Terminal::print(&format!("{}{}", promt_text, input));
+
+            if let Ok(Key(event)) = read() {
+                match event.code {
+                    KeyCode::Char(ch) => input.push(ch),
+                    KeyCode::Backspace => {
+                        input.pop();
+                    }
+                    KeyCode::Enter => return Some(input),
+                    KeyCode::Esc => return None,
+                    _ => (),
+                }
+            }
+        }
     }
 }
