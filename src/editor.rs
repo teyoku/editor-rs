@@ -106,11 +106,18 @@ impl Editor {
                     self.buffer.modified = true;
                 }
                 KeyCode::Enter => {
-                    self.buffer.insert_newline(&self.cursor);
+                    let indent = self.buffer.get_line_indent(self.cursor.y);
 
+                    self.buffer.insert_newline(&self.cursor);
                     // Переводим курсор на начало новой строки
                     self.cursor.x = 0;
                     self.cursor.y += 1;
+
+                    // auto-indent (авто отступы)
+                    for ch in indent.chars() {
+                        self.buffer.insert_char(&self.cursor, ch);
+                        self.cursor.x += 1;
+                    }
 
                     self.buffer.modified = true;
                 }
