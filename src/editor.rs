@@ -41,6 +41,7 @@ impl Editor {
             let event = read()?;
             self.evaluate_event(&event)?;
         }
+        Terminal::move_cursor_to(0, 0)?;
         Terminal::clear_screen()?;
         Terminal::terminate()?;
         Ok(())
