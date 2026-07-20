@@ -146,8 +146,10 @@ impl Editor {
             self.viewport.col_offset = self.cursor.x;
         }
 
-        if self.cursor.x >= self.viewport.col_offset + width {
-            self.viewport.col_offset = self.cursor.x - width + 1;
+        let gutter_width = self.buffer.line_number_width() + 1;
+
+        if self.cursor.x >= self.viewport.col_offset + width.saturating_sub(gutter_width) {
+            self.viewport.col_offset = self.cursor.x - width.saturating_sub(gutter_width) + 1;
         }
 
         Ok(())
@@ -156,6 +158,8 @@ impl Editor {
     fn draw(&self) -> io::Result<()> {
         Terminal::clear_screen()?;
         Terminal::move_cursor_to(0, 0)?;
+
+        let gutter_width = self.buffer.line_number_width() + 1;
 
         let (width, height) = Terminal::size()?;
         let width = width as usize;
@@ -171,14 +175,23 @@ impl Editor {
             let visible_text = line
                 .chars()
                 .skip(self.viewport.col_offset)
-                .take(width)
+                .take(width.saturating_sub(gutter_width))
                 .collect::<String>();
+
+            let number = screen_y + self.viewport.row_offset + 1;
+            let line_number_str = format!(
+                "{:>width$} ",
+                number,
+                width = self.buffer.line_number_width()
+            );
+
+            Terminal::print(&line_number_str)?;
             Terminal::print(&visible_text)?;
         }
 
         self.draw_status_bar()?;
 
-        let screen_x = self.cursor.x - self.viewport.col_offset;
+        let screen_x = self.cursor.x - self.viewport.col_offset + gutter_width;
         let screen_y = self.cursor.y - self.viewport.row_offset;
 
         Terminal::move_cursor_to(screen_x, screen_y)?;
