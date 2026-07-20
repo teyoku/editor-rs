@@ -8,7 +8,7 @@
 </p>
 
 <p align="center">
-    <video src="img/vid.webm" alt="App Video" width="600">
+    <img src="img/output.gif" alt="App Gif" width="600">
 </p>
 
 ## Возможности
