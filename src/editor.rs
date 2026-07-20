@@ -145,10 +145,16 @@ impl Editor {
                         }
                     }
                 }
+                KeyCode::Left if event.modifiers == KeyModifiers::CONTROL => {
+                    self.cursor.x = self.buffer.prev_word_boundary(self.cursor.x, self.cursor.y);
+                }
                 KeyCode::Left => {
                     if self.cursor.x > 0 {
                         self.cursor.x -= 1;
                     }
+                }
+                KeyCode::Right if event.modifiers == KeyModifiers::CONTROL => {
+                    self.cursor.x = self.buffer.next_word_boundary(self.cursor.x, self.cursor.y);
                 }
                 KeyCode::Right => {
                     if self.cursor.x < self.buffer.line_len(self.cursor.y) {
