@@ -66,6 +66,17 @@ impl Editor {
                     self.buffer.modified = false;
                     self.set_message("File saved successfully.");
                 }
+                KeyCode::Char('f') if event.modifiers == KeyModifiers::CONTROL => {
+                    if let Some(query) = self.prompt("Search: ") {
+                        match self.find_text(&query) {
+                            Some(pos) => self.cursor = pos,
+                            None => self.set_message("Not found"),
+                        }
+                    } else {
+                        self.set_message("Search cancelled.");
+                        return Ok(());
+                    }
+                }
                 KeyCode::Char(ch) => {
                     self.buffer.insert_char(&self.cursor, ch);
                     self.cursor.x += 1;
@@ -242,5 +253,17 @@ impl Editor {
                 }
             }
         }
+    }
+
+    fn find_text(&self, query: &str) -> Option<Position> {
+        for (y, line) in self.buffer.lines.iter().enumerate() {
+            if let Some(byte_idx) = line.find(query) {
+                // Ищем x - длину найденной подстроки (работаем с байтовым индексом)
+                let x = &line[..byte_idx].chars().count();
+                return Some(Position { x: *x, y });
+            }
+        }
+
+        None
     }
 }
