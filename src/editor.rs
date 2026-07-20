@@ -5,11 +5,16 @@ use crossterm::event::{
     KeyCode, KeyModifiers, read,
 };
 
-use crate::{buffer::Buffer, cursor::Position, terminal::Terminal};
+use crate::{
+    buffer::Buffer,
+    cursor::{Position, Viewport},
+    terminal::Terminal,
+};
 
 pub struct Editor {
     buffer: Buffer,
     cursor: Position,
+    viewport: Viewport,
     should_quit: bool,
 }
 
@@ -19,6 +24,7 @@ impl Editor {
             should_quit: false,
             buffer,
             cursor: Position::new(),
+            viewport: Viewport::new(),
         }
     }
 
@@ -100,6 +106,26 @@ impl Editor {
             }
         }
 
+        let (width, height) = Terminal::size()?;
+        let width = width as usize;
+        let height = height as usize;
+
+        if self.cursor.y < self.viewport.row_offset {
+            self.viewport.row_offset = self.cursor.y;
+        }
+
+        if self.cursor.y >= self.viewport.row_offset + height - 1 {
+            self.viewport.row_offset = self.cursor.y - (height - 1) + 1;
+        }
+
+        if self.cursor.x < self.viewport.col_offset {
+            self.viewport.col_offset = self.cursor.x;
+        }
+
+        if self.cursor.x >= self.viewport.col_offset + width {
+            self.viewport.col_offset = self.cursor.x - width + 1;
+        }
+
         Ok(())
     }
 
@@ -107,12 +133,29 @@ impl Editor {
         Terminal::clear_screen()?;
         Terminal::move_cursor_to(0, 0)?;
 
-        for (i, line) in self.buffer.lines.iter().enumerate() {
-            Terminal::move_cursor_to(0, i)?;
-            Terminal::print(line)?;
+        let (width, height) = Terminal::size()?;
+        let width = width as usize;
+        let height = height as usize;
+
+        let start_row = self.viewport.row_offset;
+        let end_row = (start_row + height).clamp(0, self.buffer.line_count());
+
+        let visible_lines = &self.buffer.lines[start_row..end_row];
+        for (screen_y, line) in visible_lines.iter().enumerate() {
+            Terminal::move_cursor_to(0, screen_y)?;
+
+            let visible_text = line
+                .chars()
+                .skip(self.viewport.col_offset)
+                .take(width)
+                .collect::<String>();
+            Terminal::print(&visible_text)?;
         }
 
-        Terminal::move_cursor_to(self.cursor.x, self.cursor.y)?;
+        let screen_x = self.cursor.x - self.viewport.col_offset;
+        let screen_y = self.cursor.y - self.viewport.row_offset;
+
+        Terminal::move_cursor_to(screen_x, screen_y)?;
 
         Ok(())
     }
