@@ -165,6 +165,8 @@ impl Editor {
             }
         }
 
+        // Реализация "движения" "камеры" (viewport) за курсором.
+
         let (width, height) = Terminal::size()?;
         let width = width as usize;
         let height = height as usize;
@@ -181,6 +183,7 @@ impl Editor {
             self.viewport.col_offset = self.cursor.x;
         }
 
+        // Учитываем размер номера строк в файле
         let gutter_width = self.buffer.line_number_width() + 1;
 
         if self.cursor.x >= self.viewport.col_offset + width.saturating_sub(gutter_width) {
@@ -194,12 +197,14 @@ impl Editor {
         Terminal::clear_screen()?;
         Terminal::move_cursor_to(0, 0)?;
 
+        // Учитываем размер номера строк в файле
         let gutter_width = self.buffer.line_number_width() + 1;
 
         let (width, height) = Terminal::size()?;
         let width = width as usize;
         let height = height as usize;
 
+        // start_row и end_row - "границы" того, что мв видим сейчас на экране (с учетом размера терминала)
         let start_row = self.viewport.row_offset;
         let end_row = (start_row + height - 1).clamp(0, self.buffer.line_count());
 
@@ -226,6 +231,7 @@ impl Editor {
 
         self.draw_status_bar()?;
 
+        // Экранная координата = координата в тексте - сдвиг камеры
         let screen_x = self.cursor.x - self.viewport.col_offset + gutter_width;
         let screen_y = self.cursor.y - self.viewport.row_offset;
 
@@ -263,6 +269,7 @@ impl Editor {
 
         status_line.push_str(&left_part);
 
+        // Заполняем пространство между двумя частями status bar'а пробелами
         while status_line.chars().count() < width - right_part.chars().count() {
             status_line.push(' ');
         }
