@@ -105,4 +105,8 @@ impl Buffer {
     pub fn line_len(&self, y: usize) -> usize {
         self.lines[y].chars().count()
     }
+
+    pub fn line_number_width(&self) -> usize {
+        self.line_count().to_string().len()
+    }
 }
