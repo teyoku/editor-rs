@@ -5,13 +5,13 @@ use crossterm::{
         Event::{self, Key},
         KeyCode, KeyModifiers, read,
     },
-    style::{self, Color},
+    style::{self, Attribute, Color},
 };
 
 use crate::{
     buffer::{Buffer, Language},
     cursor::{Position, Viewport},
-    syntax::{SyntaxDefinition, highlight_line, load_syntax, parse_color},
+    syntax::{SyntaxDefinition, highlight_line, load_syntax, parse_attribute, parse_color},
     terminal::Terminal,
 };
 
@@ -249,15 +249,19 @@ impl Editor {
 
             Terminal::print_colored(&line_number_str, Color::Green)?;
 
+            // Подсветка синтаксиса
             if let Some(syntax) = &self.syntax {
                 for (text, style) in highlight_line(&visible_text, syntax) {
                     let color = style.color.as_ref().and_then(|name| parse_color(name));
 
-                    if let Some(color) = color {
-                        Terminal::print_colored(&text, color)?;
-                    } else {
-                        Terminal::print(&text)?;
+                    let mut attributes: Vec<Attribute> = Vec::new();
+                    for name in &style.attributes {
+                        if let Some(attr) = parse_attribute(name) {
+                            attributes.push(attr);
+                        }
                     }
+
+                    Terminal::print_styled(&text, color, &attributes)?;
                 }
             } else {
                 Terminal::print(&visible_text)?;
