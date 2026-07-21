@@ -1,4 +1,5 @@
-use crossterm::style::{Attribute, Color};
+use std::fs;
+
 use serde::Deserialize;
 
 use crate::buffer::Language;
@@ -32,7 +33,15 @@ pub struct Rule {
 // Полное описание синтаксиса одного языка
 #[derive(Deserialize)]
 pub struct SyntaxDefinition {
-    language: Language,
-    extensions: Vec<String>,
-    rules: Vec<Rule>,
+    pub language: Language,
+    pub extensions: Vec<String>,
+    pub rules: Vec<Rule>,
+}
+
+pub fn load_syntax(path: &str) -> Result<SyntaxDefinition, String> {
+    let content = fs::read_to_string(path).map_err(|err| format!("File read error: {err}"))?;
+    let definition =
+        serde_json::from_str(&content).map_err(|err| format!("File parsing error: {err}"))?;
+
+    Ok(definition)
 }
