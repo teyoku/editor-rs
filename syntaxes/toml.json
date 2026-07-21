@@ -1,0 +1,31 @@
+{
+    "language": "Toml",
+    "extensions": [
+        "toml"
+    ],
+    "rules": [
+        {
+            "kind": "Keyword",
+            "definitions": [
+                "true",
+                "false"
+            ],
+            "style": {
+                "color": "Blue",
+                "attributes": []
+            }
+        },
+        {
+            "kind": "Comment",
+            "definitions": [
+                "#"
+            ],
+            "style": {
+                "color": "DarkGrey",
+                "attributes": [
+                    "Dim"
+                ]
+            }
+        }
+    ]
+}

@@ -1,13 +1,14 @@
 {
-    "language": "Rust",
+    "language": "Python",
     "extensions": [
-        "rs"
+        "py"
     ],
     "rules": [
         {
             "kind": "Function",
             "definitions": [
-                "fn"
+                "def",
+                "lambda"
             ],
             "style": {
                 "color": "Red",
@@ -19,41 +20,39 @@
         {
             "kind": "Keyword",
             "definitions": [
-                "let",
-                "mut",
-                "const",
-                "static",
                 "if",
+                "elif",
                 "else",
                 "while",
                 "for",
-                "loop",
-                "match",
-                "return",
-                "struct",
-                "enum",
-                "impl",
-                "trait",
-                "type",
-                "pub",
-                "use",
-                "mod",
-                "crate",
-                "super",
-                "self",
-                "Self",
-                "true",
-                "false",
-                "as",
                 "in",
-                "ref",
-                "move",
+                "try",
+                "except",
+                "finally",
+                "with",
+                "as",
+                "import",
+                "from",
+                "return",
+                "yield",
+                "pass",
                 "break",
                 "continue",
-                "where",
+                "class",
+                "and",
+                "or",
+                "not",
+                "is",
+                "None",
+                "True",
+                "False",
+                "global",
+                "nonlocal",
+                "assert",
+                "del",
+                "raise",
                 "async",
-                "await",
-                "dyn"
+                "await"
             ],
             "style": {
                 "color": "Blue",
@@ -63,7 +62,7 @@
         {
             "kind": "Comment",
             "definitions": [
-                "//"
+                "#"
             ],
             "style": {
                 "color": "DarkGrey",
