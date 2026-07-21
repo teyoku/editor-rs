@@ -3,7 +3,10 @@ use std::io::{self, stdout};
 use crossterm::{
     cursor::MoveTo,
     execute,
-    style::Print,
+    style::{
+        Attribute, Attributes, Color, Print, ResetColor, SetAttribute, SetAttributes,
+        SetForegroundColor,
+    },
     terminal::{Clear, ClearType, disable_raw_mode, enable_raw_mode, size},
 };
 
@@ -43,6 +46,37 @@ impl Terminal {
 
     pub fn clear_current_line() -> io::Result<()> {
         execute!(stdout(), Clear(ClearType::CurrentLine))?;
+        Ok(())
+    }
+
+    pub fn print_colored(text: &str, color: Color) -> io::Result<()> {
+        execute!(stdout(), SetForegroundColor(color), Print(text), ResetColor)?;
+        Ok(())
+    }
+
+    pub fn print_styled(
+        text: &str,
+        foreground: Option<Color>,
+        attributes: &[Attribute],
+    ) -> io::Result<()> {
+        let mut attrs = Attributes::default();
+        for &attr in attributes {
+            attrs.extend(Attributes::from(attr));
+        }
+
+        execute!(stdout(), SetAttributes(attrs))?;
+
+        if let Some(color) = foreground {
+            execute!(stdout(), SetForegroundColor(color))?;
+        }
+
+        execute!(
+            stdout(),
+            Print(text),
+            SetAttribute(Attribute::Reset),
+            ResetColor
+        )?;
+
         Ok(())
     }
 }
