@@ -48,6 +48,7 @@ pub fn load_syntax(path: &str) -> Result<SyntaxDefinition, String> {
 
     Ok(definition)
 }
+
 pub fn highlight_line(line: &str, syntax: &SyntaxDefinition) -> Vec<(String, Style)> {
     let mut segments: Vec<(String, Style)> = Vec::new();
 
@@ -71,3 +72,24 @@ pub fn highlight_line(line: &str, syntax: &SyntaxDefinition) -> Vec<(String, Sty
     segments
 }
 
+pub fn parse_color(name: &str) -> Option<Color> {
+    match name {
+        "Black" => Some(Color::Black),
+        "DarkGrey" => Some(Color::DarkGrey),
+        "Red" => Some(Color::Red),
+        "DarkRed" => Some(Color::DarkRed),
+        "Green" => Some(Color::Green),
+        "DarkGreen" => Some(Color::DarkGreen),
+        "Yellow" => Some(Color::Yellow),
+        "DarkYellow" => Some(Color::DarkYellow),
+        "Blue" => Some(Color::Blue),
+        "DarkBlue" => Some(Color::DarkBlue),
+        "Magenta" => Some(Color::Magenta),
+        "DarkMagenta" => Some(Color::DarkMagenta),
+        "Cyan" => Some(Color::Cyan),
+        "DarkCyan" => Some(Color::DarkCyan),
+        "White" => Some(Color::White),
+        "Grey" => Some(Color::Grey),
+        _ => None
+    }
+}
