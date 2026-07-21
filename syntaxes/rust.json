@@ -1,0 +1,37 @@
+{
+    "language": "Rust",
+    "extensions": [
+        "rs"
+    ],
+    "rules": [
+        {
+            "kind": "Function",
+            "definitions": [
+                "fn"
+            ],
+            "style": {
+                "color": "Red",
+                "attributes": []
+            }
+        },
+        {
+            "kind": "Keyword",
+            "definitions": [
+                "let",
+                "mut",
+                "if",
+                "else",
+                "for",
+                "while",
+                "loop",
+                "match",
+                "struct",
+                "enum"
+            ],
+            "style": {
+                "color": "Blue",
+                "attributes": []
+            }
+        }
+    ]
+}
