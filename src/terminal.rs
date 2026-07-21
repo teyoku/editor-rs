@@ -7,7 +7,10 @@ use crossterm::{
         Attribute, Attributes, Color, Print, ResetColor, SetAttribute, SetAttributes,
         SetForegroundColor,
     },
-    terminal::{Clear, ClearType, disable_raw_mode, enable_raw_mode, size},
+    terminal::{
+        Clear, ClearType, EnterAlternateScreen, LeaveAlternateScreen, disable_raw_mode,
+        enable_raw_mode, size,
+    },
 };
 
 pub struct Terminal {}
@@ -15,6 +18,7 @@ pub struct Terminal {}
 impl Terminal {
     pub fn terminate() -> io::Result<()> {
         disable_raw_mode()?;
+        execute!(stdout(), LeaveAlternateScreen)?;
         Ok(())
     }
 
@@ -22,6 +26,7 @@ impl Terminal {
         enable_raw_mode()?;
         Self::clear_screen()?;
         Self::move_cursor_to(0, 0)?;
+        execute!(stdout(), EnterAlternateScreen)?;
         Ok(())
     }
 
