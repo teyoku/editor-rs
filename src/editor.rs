@@ -1,8 +1,11 @@
 use std::io;
 
-use crossterm::event::{
-    Event::{self, Key},
-    KeyCode, KeyModifiers, read,
+use crossterm::{
+    event::{
+        Event::{self, Key},
+        KeyCode, KeyModifiers, read,
+    },
+    style::Color,
 };
 
 use crate::{
@@ -225,7 +228,7 @@ impl Editor {
                 width = self.buffer.line_number_width()
             );
 
-            Terminal::print(&line_number_str)?;
+            Terminal::print_colored(&line_number_str, Color::Green)?;
             Terminal::print(&visible_text)?;
         }
 
