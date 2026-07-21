@@ -1,6 +1,6 @@
 use std::fs;
 
-use crossterm::style::Color;
+use crossterm::style::{Attribute, Color};
 use serde::Deserialize;
 
 use unicode_segmentation::UnicodeSegmentation;
@@ -68,7 +68,6 @@ pub fn highlight_line(line: &str, syntax: &SyntaxDefinition) -> Vec<(String, Sty
             )),
         }
     }
-
     segments
 }
 
@@ -90,6 +89,28 @@ pub fn parse_color(name: &str) -> Option<Color> {
         "DarkCyan" => Some(Color::DarkCyan),
         "White" => Some(Color::White),
         "Grey" => Some(Color::Grey),
-        _ => None
+        _ => None,
+    }
+}
+
+pub fn parse_attribute(name: &str) -> Option<Attribute> {
+    match name {
+        "Bold" => Some(Attribute::Bold),
+        "Dim" => Some(Attribute::Dim),
+        "Italic" => Some(Attribute::Italic),
+        "Underlined" => Some(Attribute::Underlined),
+        "DoubleUnderlined" => Some(Attribute::DoubleUnderlined),
+        "Undercurled" => Some(Attribute::Undercurled),
+        "Underdotted" => Some(Attribute::Underdotted),
+        "Underdashed" => Some(Attribute::Underdashed),
+        "SlowBlink" => Some(Attribute::SlowBlink),
+        "RapidBlink" => Some(Attribute::RapidBlink),
+        "Reverse" => Some(Attribute::Reverse),
+        "Fraktur" => Some(Attribute::Fraktur),
+        "Framed" => Some(Attribute::Framed),
+        "Encircled" => Some(Attribute::Encircled),
+        "OverLined" => Some(Attribute::OverLined),
+        "CrossedOut" => Some(Attribute::CrossedOut),
+        _ => None,
     }
 }
