@@ -1,11 +1,14 @@
 use std::fs;
 
+use crossterm::style::Color;
 use serde::Deserialize;
+
+use unicode_segmentation::UnicodeSegmentation;
 
 use crate::buffer::Language;
 
 // Как должен выглядить кусочек текста
-#[derive(Deserialize)]
+#[derive(Deserialize, Clone)]
 pub struct Style {
     pub color: Option<String>,
     pub attributes: Vec<String>,
@@ -45,3 +48,26 @@ pub fn load_syntax(path: &str) -> Result<SyntaxDefinition, String> {
 
     Ok(definition)
 }
+pub fn highlight_line(line: &str, syntax: &SyntaxDefinition) -> Vec<(String, Style)> {
+    let mut segments: Vec<(String, Style)> = Vec::new();
+
+    for part in line.split_word_bounds() {
+        match syntax
+            .rules
+            .iter()
+            .find(|&rule| rule.definitions.contains(&part.to_string()))
+        {
+            Some(rule) => segments.push((part.to_string(), rule.style.clone())),
+            None => segments.push((
+                part.to_string(),
+                Style {
+                    color: None,
+                    attributes: Vec::new(),
+                },
+            )),
+        }
+    }
+
+    segments
+}
+
