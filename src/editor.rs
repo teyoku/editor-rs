@@ -5,7 +5,7 @@ use crossterm::{
         Event::{self, Key},
         KeyCode, KeyModifiers, read,
     },
-    style::{self, Attribute, Color},
+    style::{Attribute, Color},
 };
 
 use crate::{
