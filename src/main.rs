@@ -2,6 +2,7 @@ mod buffer;
 mod cursor;
 mod editor;
 mod terminal;
+mod syntax;
 
 use buffer::Buffer;
 use editor::Editor;
