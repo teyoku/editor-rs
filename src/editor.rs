@@ -5,12 +5,13 @@ use crossterm::{
         Event::{self, Key},
         KeyCode, KeyModifiers, read,
     },
-    style::Color,
+    style::{self, Color},
 };
 
 use crate::{
-    buffer::Buffer,
+    buffer::{Buffer, Language},
     cursor::{Position, Viewport},
+    syntax::{SyntaxDefinition, highlight_line, load_syntax, parse_color},
     terminal::Terminal,
 };
 
@@ -20,16 +21,34 @@ pub struct Editor {
     viewport: Viewport,
     should_quit: bool,
     status_message: String,
+    syntax: Option<SyntaxDefinition>,
 }
 
 impl Editor {
     pub fn new(buffer: Buffer) -> Self {
+        let lang = buffer.language();
+        let path = match lang {
+            Language::Rust => Some("syntaxes/rust.json"),
+            Language::Python => Some("syntaxes/python.json"),
+            Language::Toml => Some("syntaxes/toml.json"),
+            Language::PlainText => None,
+        };
+
+        let syntax = match path {
+            Some(p) => match load_syntax(p) {
+                Ok(def) => Some(def),
+                Err(_) => None,
+            },
+            None => None,
+        };
+
         Self {
             should_quit: false,
             buffer,
             cursor: Position::new(),
             viewport: Viewport::new(),
             status_message: String::new(),
+            syntax,
         }
     }
 
@@ -229,7 +248,20 @@ impl Editor {
             );
 
             Terminal::print_colored(&line_number_str, Color::Green)?;
-            Terminal::print(&visible_text)?;
+
+            if let Some(syntax) = &self.syntax {
+                for (text, style) in highlight_line(&visible_text, syntax) {
+                    let color = style.color.as_ref().and_then(|name| parse_color(name));
+
+                    if let Some(color) = color {
+                        Terminal::print_colored(&text, color)?;
+                    } else {
+                        Terminal::print(&text)?;
+                    }
+                }
+            } else {
+                Terminal::print(&visible_text)?;
+            }
         }
 
         self.draw_status_bar()?;
