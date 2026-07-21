@@ -1,5 +1,7 @@
 use std::{ffi::OsStr, fs, io, path::Path};
 
+use serde::Deserialize;
+
 use crate::cursor::Position;
 
 pub struct Buffer {
@@ -8,6 +10,7 @@ pub struct Buffer {
     pub modified: bool,
 }
 
+#[derive(Deserialize)]
 pub enum Language {
     Rust,
     Python,
