@@ -93,6 +93,8 @@ impl Editor {
 
     fn evaluate_event(&mut self, event: &Event) -> io::Result<()> {
         if let Key(event) = event {
+            self.status_message.clear();
+
             match event.code {
                 KeyCode::Char('q') if event.modifiers == KeyModifiers::CONTROL => {
                     self.should_quit = true;
