@@ -1,4 +1,4 @@
-use std::io;
+use std::{ffi::OsStr, fs, io, path::Path};
 
 use crossterm::{
     event::{
@@ -9,7 +9,7 @@ use crossterm::{
 };
 
 use crate::{
-    buffer::{Buffer, Language},
+    buffer::Buffer,
     cursor::{Position, Viewport},
     syntax::{SyntaxDefinition, highlight_line, load_syntax, parse_attribute, parse_color},
     terminal::Terminal,
@@ -21,34 +21,56 @@ pub struct Editor {
     viewport: Viewport,
     should_quit: bool,
     status_message: String,
-    syntax: Option<SyntaxDefinition>,
+    syntaxes: Vec<SyntaxDefinition>,
+    current_syntax: Option<usize>,
 }
 
 impl Editor {
     pub fn new(buffer: Buffer) -> Self {
-        let lang = buffer.language();
-        let path = match lang {
-            Language::Rust => Some("syntaxes/rust.json"),
-            Language::Python => Some("syntaxes/python.json"),
-            Language::Toml => Some("syntaxes/toml.json"),
-            Language::PlainText => None,
-        };
+        let mut syntaxes: Vec<SyntaxDefinition> = Vec::new();
 
-        let syntax = match path {
-            Some(p) => match load_syntax(p) {
-                Ok(def) => Some(def),
-                Err(_) => None,
-            },
-            None => None,
-        };
+        // Проходимся по JSON файлам синтаксиса и на основе их содержимого создаем SyntaxDefinition и добавляем в syntaxes
+        if let Ok(entries) = fs::read_dir("syntaxes") {
+            let valid_paths: Vec<String> = entries
+                .filter_map(|entry| entry.ok())
+                .filter_map(|entry| entry.path().to_str().map(|path| path.to_string()))
+                .collect();
 
-        Self {
+            for path in valid_paths {
+                if let Ok(def) = load_syntax(&path) {
+                    syntaxes.push(def);
+                }
+            }
+        }
+
+        let mut editor = Self {
             should_quit: false,
             buffer,
             cursor: Position::new(),
             viewport: Viewport::new(),
             status_message: String::new(),
-            syntax,
+            syntaxes,
+            current_syntax: None,
+        };
+
+        editor.select_syntax();
+        editor
+    }
+
+    fn select_syntax(&mut self) {
+        if let Some(filename) = &self.buffer.filename {
+            let ext = Path::new(filename).extension().and_then(OsStr::to_str);
+            for (i, syntax) in self.syntaxes.iter().enumerate() {
+                // Если расширение текущего файла есть в поле extensions какого-то синтаксиса, то сохраняем индекс этого синтаксиса
+                if let Some(ext) = ext
+                    && syntax.extensions.contains(&ext.to_string())
+                {
+                    self.current_syntax = Some(i);
+                    break;
+                }
+            }
+        } else {
+            self.current_syntax = None;
         }
     }
 
@@ -249,9 +271,8 @@ impl Editor {
 
             Terminal::print_colored(&line_number_str, Color::Green)?;
 
-            // Подсветка синтаксиса
-            if let Some(syntax) = &self.syntax {
-                for (text, style) in highlight_line(&visible_text, syntax) {
+            if let Some(idx) = self.current_syntax {
+                for (text, style) in highlight_line(&visible_text, &self.syntaxes[idx]) {
                     let color = style.color.as_ref().and_then(|name| parse_color(name));
 
                     let mut attributes: Vec<Attribute> = Vec::new();
