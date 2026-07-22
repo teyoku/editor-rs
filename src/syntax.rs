@@ -15,7 +15,7 @@ pub struct Style {
 }
 
 // Тип токена (ключевого слова)
-#[derive(Deserialize)]
+#[derive(Deserialize, PartialEq, Eq)]
 pub enum TokenKind {
     Keyword,
     Comment,
@@ -49,10 +49,10 @@ pub fn load_syntax(path: &str) -> Result<SyntaxDefinition, String> {
     Ok(definition)
 }
 
-pub fn highlight_line(line: &str, syntax: &SyntaxDefinition) -> Vec<(String, Style)> {
+fn highlight_tokens(text: &str, syntax: &SyntaxDefinition) -> Vec<(String, Style)> {
     let mut segments: Vec<(String, Style)> = Vec::new();
 
-    for part in line.split_word_bounds() {
+    for part in text.split_word_bounds() {
         match syntax
             .rules
             .iter()
@@ -68,6 +68,48 @@ pub fn highlight_line(line: &str, syntax: &SyntaxDefinition) -> Vec<(String, Sty
             )),
         }
     }
+    segments
+}
+
+pub fn highlight_line(line: &str, syntax: &SyntaxDefinition) -> Vec<(String, Style)> {
+    let mut segments: Vec<(String, Style)> = Vec::new();
+
+    // Все правила синтаксиса для комментариев
+    let comment_rules: Vec<&Rule> = syntax
+        .rules
+        .iter()
+        .filter(|rule| rule.kind == TokenKind::Comment)
+        .collect();
+
+    let mut found_idx: Option<usize> = None;
+    let mut found_style: Option<&Style> = None;
+
+    // Ищем байтовых индекс первого символа комментария в строке
+    // Также в found_style сохраняем стиль для этого комментария
+    for rule in comment_rules {
+        for definition in &rule.definitions {
+            if let Some(byte_idx) = line.find(definition) {
+                found_idx = match found_idx {
+                    Some(pos) => Some(pos.min(byte_idx)),
+                    None => Some(byte_idx),
+                };
+                found_style = Some(&rule.style);
+            }
+        }
+    }
+
+    if let Some(byte_idx) = found_idx {
+        // Текст ДО комментария - выделяет подсветкой для языка
+        let unstyled_segment = &line[..byte_idx];
+        segments.extend(highlight_tokens(unstyled_segment, syntax));
+
+        // Сам символ комментария и текст ПОСЛЕ него - выделяем подсветкой комментария
+        let styled_segment = &line[byte_idx..];
+        segments.push((styled_segment.to_string(), found_style.unwrap().clone()));
+    } else {
+        segments.extend(highlight_tokens(line, syntax));
+    }
+
     segments
 }
 
