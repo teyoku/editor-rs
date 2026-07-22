@@ -1,4 +1,4 @@
-use std::{ffi::OsStr, fs, io, path::Path};
+use std::{fs, io};
 
 use serde::Deserialize;
 
@@ -172,19 +172,5 @@ impl Buffer {
 
     pub fn line_number_width(&self) -> usize {
         self.line_count().to_string().len()
-    }
-
-    // Определение языка файла по расширению
-    pub fn language(&self) -> Language {
-        if let Some(filename) = &self.filename {
-            match Path::new(filename).extension().and_then(OsStr::to_str) {
-                Some("rs") => Language::Rust,
-                Some("py") => Language::Python,
-                Some("toml") => Language::Toml,
-                _ => Language::PlainText,
-            }
-        } else {
-            Language::PlainText
-        }
     }
 }
