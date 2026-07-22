@@ -49,10 +49,51 @@ pub fn load_syntax(path: &str) -> Result<SyntaxDefinition, String> {
     Ok(definition)
 }
 
+fn is_a_number(text: &str) -> bool {
+    if text.is_empty() {
+        return false;
+    }
+
+    let mut dot_count = 0;
+    let mut has_digit = false;
+
+    for ch in text.chars() {
+        if ch == '.' {
+            dot_count += 1;
+            if dot_count > 1 {
+                return false;
+            }
+        } else if ch.is_ascii_digit() {
+            has_digit = true;
+        } else {
+            return false;
+        }
+    }
+
+    has_digit
+}
+
 fn highlight_tokens(text: &str, syntax: &SyntaxDefinition) -> Vec<(String, Style)> {
     let mut segments: Vec<(String, Style)> = Vec::new();
 
+    // Ищем стиль для подсветки числа
+    let mut number_style = syntax.rules.iter().find_map(|rule| {
+        if rule.kind == TokenKind::Number {
+            Some(&rule.style)
+        } else {
+            None
+        }
+    });
+
     for part in text.split_word_bounds() {
+        // Если стиль найден и токен - число, то пушим сегмент
+        if let Some(number_style) = number_style
+            && is_a_number(part)
+        {
+            segments.push((part.to_string(), number_style.clone()));
+            continue;
+        }
+
         match syntax
             .rules
             .iter()
