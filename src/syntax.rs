@@ -81,31 +81,31 @@ pub fn highlight_line(line: &str, syntax: &SyntaxDefinition) -> Vec<(String, Sty
         .filter(|rule| rule.kind == TokenKind::Comment)
         .collect();
 
-    let mut found_idx: Option<usize> = None;
-    let mut found_style: Option<&Style> = None;
+    let mut comment_idx: Option<usize> = None;
+    let mut comment_style: Option<&Style> = None;
 
     // Ищем байтовых индекс первого символа комментария в строке
     // Также в found_style сохраняем стиль для этого комментария
     for rule in comment_rules {
         for definition in &rule.definitions {
             if let Some(byte_idx) = line.find(definition) {
-                found_idx = match found_idx {
+                comment_idx = match comment_idx {
                     Some(pos) => Some(pos.min(byte_idx)),
                     None => Some(byte_idx),
                 };
-                found_style = Some(&rule.style);
+                comment_style = Some(&rule.style);
             }
         }
     }
 
-    if let Some(byte_idx) = found_idx {
+    if let Some(byte_idx) = comment_idx {
         // Текст ДО комментария - выделяет подсветкой для языка
         let unstyled_segment = &line[..byte_idx];
         segments.extend(highlight_tokens(unstyled_segment, syntax));
 
         // Сам символ комментария и текст ПОСЛЕ него - выделяем подсветкой комментария
         let styled_segment = &line[byte_idx..];
-        segments.push((styled_segment.to_string(), found_style.unwrap().clone()));
+        segments.push((styled_segment.to_string(), comment_style.unwrap().clone()));
     } else {
         segments.extend(highlight_tokens(line, syntax));
     }
