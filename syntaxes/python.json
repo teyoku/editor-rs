@@ -102,6 +102,14 @@
                 "color": "Magenta",
                 "attributes": []
             }
+        },
+        {
+            "kind": "Number",
+            "definitions": [],
+            "style": {
+                "color": "Cyan",
+                "attributes": []
+            }
         }
     ]
 }

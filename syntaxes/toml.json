@@ -26,6 +26,14 @@
                     "Dim"
                 ]
             }
+        },
+        {
+            "kind": "Number",
+            "definitions": [],
+            "style": {
+                "color": "Cyan",
+                "attributes": []
+            }
         }
     ]
 }
