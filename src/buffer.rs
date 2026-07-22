@@ -1,21 +1,11 @@
 use std::{fs, io};
 
-use serde::Deserialize;
-
 use crate::cursor::Position;
 
 pub struct Buffer {
     pub lines: Vec<String>,
     pub filename: Option<String>,
     pub modified: bool,
-}
-
-#[derive(Deserialize)]
-pub enum Language {
-    Rust,
-    Python,
-    Toml,
-    PlainText,
 }
 
 impl Buffer {

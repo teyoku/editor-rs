@@ -5,8 +5,6 @@ use serde::Deserialize;
 
 use unicode_segmentation::UnicodeSegmentation;
 
-use crate::buffer::Language;
-
 // Как должен выглядить кусочек текста
 #[derive(Deserialize, Clone)]
 pub struct Style {
@@ -36,7 +34,7 @@ pub struct Rule {
 // Полное описание синтаксиса одного языка
 #[derive(Deserialize)]
 pub struct SyntaxDefinition {
-    pub language: Language,
+    pub language: String,
     pub extensions: Vec<String>,
     pub rules: Vec<Rule>,
 }
